@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en" class="os-win" ng-app>
+<head>
+    <link rel="icon" href="https://static.licdn.com/scds/common/u/images/logos/favicons/v1/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="https://static.licdn.com/scds/concat/common/css?h=a6c7eivr8umrp20gkm4s5m4kd-8xeypgdgvcizdctzm0e7ukaca">
+    <!-- main css----->
+    <link href="stylesheets/style.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <title><%= title %></title>
+    <link rel="stylesheet" type="text/css" href="https://static.licdn.com/scds/concat/common/css?h=butwuk9519t84n1sehrnvm28e-88a1cukpbdne8xc9d9pgyy4yy-7utshxh7khh3dt6rf9hqkcva9-dh9s2pgf6ghcuifobl7cvitf9-9zqrvq8cfveudp183uj4r7mnn-24o3wkkwwvmwutak3nlw5lx4n-eu8svnpd32wrtwqeuiuomdty0-d3qzdm6v4fwdfvj915pc8j33q-7wkobeym49ay68d7m8s89ll84-b9x9bqassms851tb78g9ejb4l-bl8cw4bd4ob4pwjuq0b91hzgl-6ats6m7xduygfm2ub9thl1xvq&amp;fc=2">
+	<script>
+			function deleteConnectionController($scope, $http){
+			
+		if(localStorage.getItem("token") == "" || localStorage.getItem("token") == undefined){
+        			window.location.href = "/";
+        		}
+        		
+				var userid = localStorage.getItem("userid");
+	        	var token = localStorage.getItem("token");
+				var url = "/showaddedconnections/id/"+userid+"/token/"+token;   				
+	    				$http({
+							method: 'GET',
+							url: url,
+							data: 
+							{ 
+								"userid": 13 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){
+									$scope.deleteconn = response.value.result;
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					     
+					$scope.deleteConnection = function(event) {
+					if (confirm("Are you sure you want to delete connection?") == true) {	
+	    					var id = event.target.id.split('-');
+	    					var url = "/deleteconnections/id/" + id[1] + "/token/"+ token;   				
+		    				$http({
+								method: 'DELETE',
+								url: url				
+								}).success(function(response){
+									if(response.value.error == false){
+										var row = event.target.parentNode.parentNode;
+							            document.getElementById("tblConnectionList").deleteRow(row.rowIndex);
+							            alert(response.value.result);
+									}
+									else{
+										alert(response.value.message);	
+									}					
+								}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					    }
+    				};
+    				
+    				var url = "/getlastlogindetails/id/"+userid+"/token/"+token;   				
+	    				$http({
+							method: 'GET',
+							url: url,
+							data: 
+							{ 
+								"userid": 13 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){			
+									try{	
+										var splitDate = response.value.result[0].LastLogin.split("T");
+										var splitTime = splitDate[1].split(".");										
+										$scope.lastlogin = splitDate[0] + " " + splitTime[0];
+									}
+									catch(e){
+										$scope.lastlogin = response.value.result[0].LastLogin;
+									}						
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					     
+					     
+					$scope.logout = function(){
+						var url = "/logout/id/"+userid+"/token/"+token;   				
+	    				$http({
+							method: 'GET',
+							url: url,
+							data: 
+							{ 
+								"userid": 13 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){			
+									window.location.href = "/logout";						
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					};
+			}
+	</script>
+</head>
+<body ng-controller="deleteConnectionController" dir="ltr" class="member v2  chrome-v5 chrome-v5-responsive sticky-bg" id="pagekey-nprofile_my_profile">
+    <!------------------header----------------->
+    <div id="header" class="global-header responsive-header nav-v5-2-header responsive-1 remote-nav" role="banner">
+        <div id="top-header">
+            <div class="wrapper">
+                <div class="header-section first-child">
+                    <table width="100%">
+                        <tr>
+                            <td style="width: 70%">
+                                <a href="javascript:void(0)" class="logo" id="in-logo">
+                                    LinkedIn
+                                </a>
+                            </td>
+                            <td style="width: 28%">
+                                <label style="color: #ffffff; font-size: 10pt; padding-left: 5%" ng-model="lastlogin">Last Login - {{ lastlogin }}</label> :                         
+                            </td>
+                            <td>
+                                <img ng-click="logout()" title="Logout" src="./img/log_off.png" class="logout" alt="Logout" style="height: 36px; width: 44px; cursor: pointer; padding-top: 3px;">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="responsive-nav" id="responsive-nav-scrollable">
+            <div class="wrapper">
+                <ul class="nav main-nav" role="navigation">
+                    <li class="nav-item">
+                        <a href="/homepage" class="nav-link">
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item selected">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Profile
+                        </a>
+                        <ul class="sub-nav" id="profile-sub-nav">
+                            <li>
+                                <a href="/userprofile">
+                                    Edit Profile
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Connections
+                        </a>
+                        <ul class="sub-nav">
+                            <li>
+                                <a href="/addconnection">
+                                    Check Connections
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/searchconnection">
+                                    Search Connections
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/deleteconnection">
+                                    Delete Connections
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/followcompany">
+                                    Follow Company
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/endorseskills">
+                                    Endorse Skills
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Experience
+                        </a>
+                        <ul class="sub-nav">
+                            <li>
+                                <a href="/addexperience">
+                                    Add Experience
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/editexperience">
+                                    Edit Experience
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/addproject">
+                                    Add Project
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/editproject">
+                                    Edit Project
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/skill">
+                                    Skill
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Education
+                        </a>
+                        <ul class="sub-nav">
+                            <li>
+                                <a href="/addeducation">
+                                    Add Education
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/editeducation">
+                                    Edit Education
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Recommendations
+                        </a>
+                        <ul class="sub-nav" id="interests-sub-nav">
+                            <li>
+                                <a href="/recommendations">
+                                    Give Recommendations
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!------------------BodyContent----------------->
+
+    <div>
+        <table style="width: 100%; height: inherit">
+            <tr>
+                <td style="padding-left: 23%; padding-right: 23%; padding-top: 6.5%">
+                    <div class="mainContent">
+                        <fieldset style="margin-top: 2%; margin-left: 2%; margin-right: 2%">
+                            <legend><label style="font-size: 19pt; color: #c3bbbb">Connections</label></legend>
+                            <div style="padding-left: 5%; padding-right: 5%; padding-top: 2%; padding-bottom: 2%">
+                                <br />
+                                <div>
+                                    <table width="100%" id="tblConnectionList">
+                                        <tr data-ng-repeat="conn in deleteconn">
+                                            <td>
+                                                <table width="100%">
+                                                    <tr>
+                                                        <td>
+                                                            <label style="font-weight: bold; font-size: 13pt">{{ conn.FirstName }}  {{ conn.Lastname }}</label>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <label style="font-size: 11pt; color: #888">{{conn.ShortDetail}}</label>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <label style="font-size: 9pt; color: #abacad">{{conn.City}}, {{conn.State}}</label>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <br />
+                                            </td>
+                                            <td>
+                                                <input type="button" id="btnDelete-{{conn.Id}}" ng-click="deleteConnection($event)" class="btnBlue" data-li-trk-code="recs-give-form-send" value="Delete" />
+                                            	<br />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <br />
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!------------------Footer----------------->
+
+    <footer>
+        <div>
+            <div>
+                <div class="wrapper">
+                    <p style="left: 42%; padding-bottom :2%; padding-top: 1%; font-size: 9pt; position:absolute;" id="copyright" class="guest"><span>LinkedIn Corporation</span> <em>&copy; 2015</em></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

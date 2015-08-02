@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en" class="os-win" ng-app>
+<head>
+    <link rel="icon" href="https://static.licdn.com/scds/common/u/images/logos/favicons/v1/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="https://static.licdn.com/scds/concat/common/css?h=a6c7eivr8umrp20gkm4s5m4kd-8xeypgdgvcizdctzm0e7ukaca">
+    <!-- main css----->
+    <link href="stylesheets/style.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <title><%= title %></title>
+    <link rel="stylesheet" type="text/css" href="https://static.licdn.com/scds/concat/common/css?h=butwuk9519t84n1sehrnvm28e-88a1cukpbdne8xc9d9pgyy4yy-7utshxh7khh3dt6rf9hqkcva9-dh9s2pgf6ghcuifobl7cvitf9-9zqrvq8cfveudp183uj4r7mnn-24o3wkkwwvmwutak3nlw5lx4n-eu8svnpd32wrtwqeuiuomdty0-d3qzdm6v4fwdfvj915pc8j33q-7wkobeym49ay68d7m8s89ll84-b9x9bqassms851tb78g9ejb4l-bl8cw4bd4ob4pwjuq0b91hzgl-6ats6m7xduygfm2ub9thl1xvq&amp;fc=2">
+	<script>
+	
+		function isNumber(evt) {
+			    evt = (evt) ? evt : window.event;
+			    var charCode = (evt.which) ? evt.which : evt.keyCode;
+			    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+			        return false;
+			    }
+			    return true;
+			} 
+			
+			
+			function addExperienceController($scope, $http){
+			
+		if(localStorage.getItem("token") == "" || localStorage.getItem("token") == undefined){
+        			window.location.href = "/";
+        		}
+        		
+				var userid = localStorage.getItem("userid");
+	        	var token = localStorage.getItem("token");
+				$scope.addexperience = function() {
+    					var url = "/addexperience";   				
+	    				$http({
+							method: 'POST',
+							url: url,
+							data: 
+							{ 
+								"userid": localStorage.getItem("userid"),
+								"token": localStorage.getItem("token"),
+								"companyname": $scope.companyname,
+								"title": $scope.title,
+								"location": $scope.location,
+								"startdatemonth": $scope.startdatemonth,
+								"startdateyear": $scope.startdateyear,
+								"enddatemonth": $scope.enddatemonth,
+								"enddateyear": $scope.enddateyear,
+								"islatest": $scope.islatest == true ? 1 : 0,
+								"description": $scope.description, 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){
+									alert(response.value.result);
+									$scope.companyname = "";
+									$scope.title = "";
+									$scope.location = "";
+									$scope.startdatemonth = "";
+									$scope.startdateyear = "";
+									$scope.enddatemonth = "";
+									$scope.enddateyear = "";
+									$scope.islatest == false;
+									$scope.description = "";
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+    				};
+    				
+    			$scope.reset = function(){
+    							$scope.companyname = "";
+								$scope.title = "";
+								$scope.location = "";
+								$scope.startdatemonth = "";
+								$scope.startdateyear = "";
+								$scope.enddatemonth = "";
+								$scope.enddateyear = "";
+								$scope.islatest == false;
+								$scope.description = "";
+    			};
+    			
+    			var url = "/getlastlogindetails/id/"+userid+"/token/"+token;   				
+	    				$http({
+							method: 'GET',
+							url: url,
+							data: 
+							{ 
+								"userid": 13 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){			
+									try{	
+										var splitDate = response.value.result[0].LastLogin.split("T");
+										var splitTime = splitDate[1].split(".");										
+										$scope.lastlogin = splitDate[0] + " " + splitTime[0];
+									}
+									catch(e){
+										$scope.lastlogin = response.value.result[0].LastLogin;
+									}						
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					     
+					     
+					$scope.logout = function(){
+						var url = "/logout/id/"+userid+"/token/"+token;   				
+	    				$http({
+							method: 'GET',
+							url: url,
+							data: 
+							{ 
+								"userid": 13 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){			
+									window.location.href = "/logout";						
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					};
+			}
+	</script>
+</head>
+<body ng-controller="addExperienceController" dir="ltr" class="member v2  chrome-v5 chrome-v5-responsive sticky-bg" id="pagekey-nprofile_my_profile">
+    <!------------------header----------------->
+    <div id="header" class="global-header responsive-header nav-v5-2-header responsive-1 remote-nav" role="banner">
+        <div id="top-header">
+            <div class="wrapper">
+                <div class="header-section first-child">
+                    <table width="100%">
+                        <tr>
+                            <td style="width: 70%">
+                                <a href="javascript:void(0)" class="logo" id="in-logo">
+                                    LinkedIn
+                                </a>
+                            </td>
+                            <td style="width: 28%">
+                                <label style="color: #ffffff; font-size: 10pt; padding-left: 5%" ng-model="lastlogin">Last Login - {{ lastlogin }}</label> :                         
+                            </td>
+                            <td>
+                                <img ng-click="logout()" title="Logout" src="./img/log_off.png" class="logout" alt="Logout" style="height: 36px; width: 44px; cursor: pointer; padding-top: 3px;">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="responsive-nav" id="responsive-nav-scrollable">
+            <div class="wrapper">
+                <ul class="nav main-nav" role="navigation">
+                    <li class="nav-item">
+                        <a href="/homepage" class="nav-link">
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item selected">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Profile
+                        </a>
+                        <ul class="sub-nav" id="profile-sub-nav">
+                            <li>
+                                <a href="/userprofile">
+                                    Edit Profile
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Connections
+                        </a>
+                        <ul class="sub-nav">
+                            <li>
+                                <a href="/addconnection">
+                                    Check Connections
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/searchconnection">
+                                    Search Connections
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/deleteconnection">
+                                    Delete Connections
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/followcompany">
+                                    Follow Company
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/endorseskills">
+                                    Endorse Skills
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Experience
+                        </a>
+                        <ul class="sub-nav">
+                            <li>
+                                <a href="/addexperience">
+                                    Add Experience
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/editexperience">
+                                    Edit Experience
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/addproject">
+                                    Add Project
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/editproject">
+                                    Edit Project
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/skill">
+                                    Skill
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Education
+                        </a>
+                        <ul class="sub-nav">
+                            <li>
+                                <a href="/addeducation">
+                                    Add Education
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/editeducation">
+                                    Edit Education
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Recommendations
+                        </a>
+                        <ul class="sub-nav" id="interests-sub-nav">
+                            <li>
+                                <a href="javascript:void(0)">
+                                    Give Recommendations
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!------------------BodyContent----------------->
+
+    <div>
+        <table style="width: 100%; height: inherit">
+            <tr>
+                <td style="padding-left: 23%; padding-right: 23%; padding-top: 6.5%">
+                    <div class="mainContent">
+                        <fieldset style="margin-top: 2%; margin-left: 2%; margin-right: 2%">
+                            <legend><label style="font-size: 19pt; color: #c3bbbb">Experience</label></legend>
+                            <div style="padding-left: 5%; padding-right: 5%; padding-top: 2%; padding-bottom: 2%">
+                                <br />
+                                <div>
+                                    <table width="100%">
+                                        <tr>
+                                            <td>
+                                                <label style="font-weight: bold">Company Name</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <br />
+                                                <input type="text" ng-model="companyname" id="txtCompanyname" value="" style="width: 605px; height: 24px;" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <br />
+                                                <label style="font-weight: bold">Title</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <br />
+                                                <input type="text" ng-model="title" id="txtTitle" value="" style="width: 605px; height: 24px;" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <br />
+                                                <label style="font-weight: bold">Location</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <br />
+                                                <input type="text" ng-model="location" id="txtLocation" value="" style="width: 605px; height: 24px;" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <br />
+                                                <label style="font-weight: bold">Time Period</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <br />
+                                                <table>
+                                                    <tr>
+                                                        <td>
+                                                            <table>
+                                                                <tr>
+                                                                    <td>
+                                                                        <div class="dropdown" style="width: 160px; height: 30px;">
+                                                                            <select name="one" class="dropdown-select" ng-model="startdatemonth">
+                                                                                <option value="0">Select</option>
+                                                                                <option value="1">January</option>
+                                                                                <option value="2">February</option>
+                                                                                <option value="3">March</option>
+                                                                                <option value="4">April</option>
+                                                                                <option value="5">May</option>
+                                                                                <option value="6">June</option>
+                                                                                <option value="7">July</option>
+                                                                                <option value="8">August</option>
+                                                                                <option value="9">September</option>
+                                                                                <option value="10">October</option>
+                                                                                <option value="11">November</option>
+                                                                                <option value="12">December</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td style="padding-left: 20px;">
+                                                                        <input type="text" maxlength="4" onkeypress="return isNumber(event)" ng-model="startdateyear" id="txtStartYear" value="" style="height: 24px; width: 90px;" />
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </td>
+                                                        <td style="padding-left: 25px;"><p>-</p></td>
+                                                        <td style="padding-left: 25px;">
+                                                            <table>
+                                                                <tr>
+                                                                    <td>
+                                                                        <div class="dropdown" style="width: 160px; height: 30px;">
+                                                                            <select name="two" class="dropdown-select" ng-model="enddatemonth">
+                                                                                <option value="0">Select</option>
+                                                                                <option value="1">January</option>
+                                                                                <option value="2">February</option>
+                                                                                <option value="3">March</option>
+                                                                                <option value="4">April</option>
+                                                                                <option value="5">May</option>
+                                                                                <option value="6">June</option>
+                                                                                <option value="7">July</option>
+                                                                                <option value="8">August</option>
+                                                                                <option value="9">September</option>
+                                                                                <option value="10">October</option>
+                                                                                <option value="11">November</option>
+                                                                                <option value="12">December</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td style="padding-left: 20px;">
+                                                                        <input type="text" maxlength="4" ng-model="enddateyear" onkeypress="return isNumber(event)" id="txtEndYear" value="" style="height: 24px; width: 90px;" />
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <br />
+                                                <input type="checkbox" ng-model="islatest" id="ckbCurrentWorkStatus" value="1" />&nbsp;<label for="ckbCurrentWorkStatus" style="font-size: 10pt; color: #b9b0b0;">I currently work here</label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <br />
+                                                <label style="font-weight: bold">
+                                                    Description
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <br />
+                                                <textarea cols="230" ng-model="description" id="txtactivitiesnsocieties" rows="8" style="max-height: 60px; max-width: 605px"></textarea>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <br />
+                            <div id="divButtons" style="float: right; padding-right: 5%">
+                                <input type="button" id="btnSave" ng-click="addexperience()" class="btnBlue" data-li-trk-code="recs-give-form-send" value="Save" />&nbsp;&nbsp;
+                                <input type="button" id="btnCancel" ng-click="reset()" class="btnGrey" value="Cancel" />
+                            </div>
+                        </fieldset>
+                        <br />
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!------------------Footer----------------->
+
+    <footer>
+        <div>
+            <div>
+                <div class="wrapper">
+                    <p style="left: 42%; padding-bottom :2%; padding-top: 1%; font-size: 9pt; position:absolute;" id="copyright" class="guest"><span>LinkedIn Corporation</span> <em>&copy; 2015</em></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

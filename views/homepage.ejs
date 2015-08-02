@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en" class="os-win" ng-app>
+<head>
+    <link rel="icon" href="https://static.licdn.com/scds/common/u/images/logos/favicons/v1/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="https://static.licdn.com/scds/concat/common/css?h=a6c7eivr8umrp20gkm4s5m4kd-8xeypgdgvcizdctzm0e7ukaca">
+    <!-- main css----->
+    <link href="./stylesheets/style.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <title><%= title %></title>
+    <script>        
+                
+        function homepageController($scope, $http){
+        		if(localStorage.getItem("token") == "" || localStorage.getItem("token") == undefined){
+        			window.location.href = "/";
+        		}
+        		
+        		var userid = localStorage.getItem("userid");
+        		var token = localStorage.getItem("token");
+        		var url = "/getuserprofiledetails/id/"+userid+"/token/"+ token;   				
+	    				$http({
+							method: 'GET',
+							url: url,
+							data: 
+							{ 
+								"userid": localStorage.getItem("userid"),
+								"token": localStorage.getItem("token") 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){
+									$scope.firstname = response.value.result[0].FirstName;
+									$scope.lastname = response.value.result[0].Lastname;
+									$scope.city = response.value.result[0].City;
+									$scope.state = response.value.result[0].State;
+									$scope.shortdetail = response.value.result[0].ShortDetail;
+									$scope.summary = response.value.result[0].Summary;
+									if(response.value.result[0].Birthday != "" && response.value.result[0].Birthday != undefined){
+										var day = response.value.result[0].Birthday.split("|");
+										var birthday = day[1];
+										var birthmonth = day[0];
+										var birthyear = day[2];
+										$scope.birthmonth = getMonthName(birthmonth);
+										$scope.birthday = birthday;
+										$scope.birthyear = birthyear;
+									}
+									$scope.maritalstatus = response.value.result[0].MaritalStatus == 1 ? "Single" : "Married";
+									$scope.emailid = response.value.result[0].EmailId;
+									$scope.interest = response.value.result[0].Interest;
+									$scope.phone = response.value.result[0].PhoneNumber;
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					     
+					     
+				var url = "/getuserfollowingcompanies/id/"+userid+"/token/"+ token;   				
+	    				$http({
+							method: 'GET',
+							url: url,
+							data: 
+							{ 
+								"userid": 13 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){
+									if(response.value.result == null || response.value.result == undefined){
+										return;
+									}
+									
+									var counter = parseInt(response.value.result.length);
+									var partition = parseInt(counter / 4);
+									var x = 0;
+									var html = '';
+									if(counter > 4)
+									{
+									for(var i = 0; i < partition; i++){
+										html += '<tr>';
+										for(var j = 0; j < 4; j++){
+											html += '<td>';										
+											html += '<div style="margin: 5%; border: 1px solid #ded3d3;';
+											html += ' width: 111px; height: 140px; color: #706e6e; border-radius: 5px; ">';
+											html += '<p style="text-align:center; padding-top: 6px;"><img style="width: 60px;';
+											html += ' height: 50px;" src="'+response.value.result[x].ImageURL+'" /></p><p class="shortFollowingDivLabel"';
+											html += ' style="text-align:center; font-size: 10pt; padding-top: 6px;">'+response.value.result[x].Name+'</p><br />';
+											if(response.value.result[x].Company.length > 10)
+											{
+												html += '<p title="'+response.value.result[x].Company+'" class="shortFollowingDivLabel" style="text-align:center; font-size: 10pt;">'+response.value.result[x].Company.substring(0,10)+'..';
+											}
+											else
+											{
+												html += '<p class="shortFollowingDivLabel" style="text-align:center; font-size: 10pt;">'+response.value.result[x].Company+'';
+											}											
+											html += '</p><br /><p style="text-align:center; font-size: 8pt;">Following</p></div>';
+											html += '</td>'
+											x++;
+										}
+										html += '</tr>';
+									}	
+																		
+									html += '<tr>';
+									for(var i = x; i < counter; i++){
+											html += '<td>';										
+											html += '<div style="margin: 5%; border: 1px solid #ded3d3;';
+											html += ' width: 111px; height: 140px; color: #706e6e; border-radius: 5px; ">';
+											html += '<p style="text-align:center; padding-top: 6px;"><img style="width: 60px;';
+											html += ' height: 50px;" src="'+response.value.result[x].ImageURL+'" /></p><p class="shortFollowingDivLabel"';
+											html += ' style="text-align:center; font-size: 10pt; padding-top: 6px;">'+response.value.result[x].Name+'</p><br />';
+											if(response.value.result[x].Company.length > 10)
+											{
+												html += '<p title="'+response.value.result[x].Company+'" class="shortFollowingDivLabel" style="text-align:center; font-size: 10pt;">'+response.value.result[x].Company.substring(0,10)+'..';
+											}
+											else
+											{
+												html += '<p class="shortFollowingDivLabel" style="text-align:center; font-size: 10pt;">'+response.value.result[x].Company+'';
+											}		
+											html += '</p><br /><p style="text-align:center; font-size: 8pt;">Following</p></div>';
+											html += '</td>'	
+											x++;
+									}											
+									html += '</tr>';	
+									}
+									else
+									{
+										html += '<tr>';
+										for(var j = 0; j < counter; j++){
+											html += '<td>';										
+											html += '<div style="margin: 5%; border: 1px solid #ded3d3;';
+											html += ' width: 111px; height: 140px; color: #706e6e; border-radius: 5px; ">';
+											html += '<p style="text-align:center; padding-top: 6px;"><img style="width: 60px;';
+											html += ' height: 50px;" src="'+response.value.result[x].ImageURL+'" /></p><p class="shortFollowingDivLabel"';
+											html += ' style="text-align:center; font-size: 10pt; padding-top: 6px;">'+response.value.result[x].Name+'</p><br />';
+											if(response.value.result[x].Company.length > 10)
+											{
+												html += '<p title="'+response.value.result[x].Company+'" class="shortFollowingDivLabel" style="text-align:center; font-size: 10pt;">'+response.value.result[x].Company.substring(0,10)+'..';
+											}
+											else
+											{
+												html += '<p class="shortFollowingDivLabel" style="text-align:center; font-size: 10pt;">'+response.value.result[x].Company+'';
+											}		
+											html += '</p><br /><p style="text-align:center; font-size: 8pt;">Following</p></div>';
+											html += '</td>'
+											x++;
+										}
+										html += '</tr>';
+									}
+									document.getElementById("tblfollowingcompany").innerHTML = html;					
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					     
+					var url = "/getuserrecommendationdetails/id/"+userid+"/token/"+ token;   				
+	    				$http({
+							method: 'GET',
+							url: url,
+							data: 
+							{ 
+								"userid": 13 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){
+									if(response.value.result.length != 0){
+										$scope.recName = response.value.result[0].Name + " - ";
+										$scope.recDescription = response.value.result[0].Description;
+										$scope.shortdetails = response.value.result[0].ShortDetail;		
+									}							
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					     
+					var url = "/getuserprojectdetails/id/"+userid+"/token/"+ token;   				
+	    				$http({
+							method: 'GET',
+							url: url,
+							data: 
+							{ 
+								"userid": 13 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){
+									$scope.projectDetails = response.value.result;
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					     
+					var url = "/getuserexperiencedetails/id/"+userid+"/token/"+ token;   				
+	    				$http({
+							method: 'GET',
+							url: url,
+							data: 
+							{ 
+								"userid": 13 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){
+									$scope.experienceitem = response.value.result;
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					     
+					 var url = "/getusereducationdetails/id/"+userid+"/token/"+ token;   				
+	    				$http({
+							method: 'GET',
+							url: url,
+							data: 
+							{ 
+								"userid": 13 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){			
+									$scope.educationitem = response.value.result;						
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					     
+				var url = "/getendorsedskilldetails/id/"+userid+"/token/"+ token;   				
+	    				$http({
+							method: 'GET',
+							url: url,
+							data: 
+							{ 
+								"userid": 13 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){
+									if(response.value.result == null || response.value.result == undefined){
+										return;
+									}
+									
+									var counter = parseInt(response.value.result.length);
+									var partition = parseInt(counter / 5);
+									var x = 0;
+									var html = '';
+									if(counter > 5)
+									{
+									for(var i = 0; i < partition; i++){
+										html += '<tr>';
+										for(var j = 0; j < 5; j++){
+											html += '<td>';
+                                            html += '<div style="margin: 5%; border: 1px solid #ded3d3; width: 89px; height: 25px; color: #706e6e; border-radius: 5px; ">';                                            
+                                            if(response.value.result[x].Name.length > 6)
+                                            {
+                                            	html += '<p title="'+response.value.result[x].Name+'" class="shortLabel" style="margin-left: 25px; font-size: 10pt; padding-top: 6px;">';
+                                            	html += response.value.result[x].Name.substring(0, 6) + "..";
+                                            }
+                                            else
+                                            {
+                                            	html += '<p class="shortLabel" style="margin-left: 25px; font-size: 10pt; padding-top: 6px;">';
+                                            	html += response.value.result[x].Name;
+                                            }
+                                            html += '</p>';
+                                            html += '<div style="background-color: #388cf5; height: 25px; width: 20px; margin-top: -19px !important; ';
+                                            html += 'border-bottom-left-radius: 5px; border-top-left-radius: 5px;"><p style="font-size: 10pt; padding-top: 6px;';
+                                            html += 'margin-left: 6px; color: #000000">'+response.value.result[x].EndorseCount+'</p></div></div>';
+                                            html += '</td>';
+											x++;
+										}
+										html += '</tr>';
+									}	
+																		
+									html += '<tr>';
+									for(var i = x; i < counter; i++){
+											html += '<td>';
+                                            html += '<div style="margin: 5%; border: 1px solid #ded3d3; width: 89px; height: 25px; color: #706e6e; border-radius: 5px; ">';                                            
+                                            if(response.value.result[x].Name.length > 6)
+                                            {
+                                            	html += '<p title="'+response.value.result[x].Name+'" class="shortLabel" style="margin-left: 25px; font-size: 10pt; padding-top: 6px;">';
+                                            	html += response.value.result[x].Name.substring(0, 6) + "..";
+                                            }
+                                            else
+                                            {
+                                            	html += '<p class="shortLabel" style="margin-left: 25px; font-size: 10pt; padding-top: 6px;">';
+                                            	html += response.value.result[x].Name;
+                                            }
+                                            html += '</p>';
+                                            html += '<div style="background-color: #388cf5; height: 25px; width: 20px; margin-top: -19px !important; ';
+                                            html += 'border-bottom-left-radius: 5px; border-top-left-radius: 5px;"><p style="font-size: 10pt; padding-top: 6px;';
+                                            html += 'margin-left: 6px; color: #000000">'+response.value.result[x].EndorseCount+'</p></div></div>';
+                                            html += '</td>';
+											x++;
+									}
+									
+                                    html += '</tr>';
+									}
+									else
+									{
+										html += '<tr>';
+										for(var j = 0; j < counter; j++){
+											html += '<td>';
+                                            html += '<div style="margin: 5%; border: 1px solid #ded3d3; width: 89px; height: 25px; color: #706e6e; border-radius: 5px; ">';                                            
+                                            if(response.value.result[x].Name.length > 6)
+                                            {
+                                            	html += '<p title="'+response.value.result[x].Name+'" class="shortLabel" style="margin-left: 25px; font-size: 10pt; padding-top: 6px;">';
+                                            	html += response.value.result[x].Name.substring(0, 6) + "..";
+                                            }
+                                            else
+                                            {
+                                            	html += '<p class="shortLabel" style="margin-left: 25px; font-size: 10pt; padding-top: 6px;">';
+                                            	html += response.value.result[x].Name;
+                                            }
+                                            html += '</p>';
+                                            html += '<div style="background-color: #388cf5; height: 25px; width: 20px; margin-top: -19px !important; ';
+                                            html += 'border-bottom-left-radius: 5px; border-top-left-radius: 5px;"><p style="font-size: 10pt; padding-top: 6px;';
+                                            html += 'margin-left: 6px; color: #000000">'+response.value.result[x].EndorseCount+'</p></div></div>';
+                                            html += '</td>';
+											x++;
+										}
+										html += '</tr>';
+									}
+									
+									document.getElementById("tblSkillset").innerHTML = html;
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					     
+					 var url = "/getlastlogindetails/id/"+userid+"/token/"+token;   				
+	    				$http({
+							method: 'GET',
+							url: url,
+							data: 
+							{ 
+								"userid": 13 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){		
+									try{	
+										var splitDate = response.value.result[0].LastLogin.split("T");
+										var splitTime = splitDate[1].split(".");										
+										$scope.lastlogin = splitDate[0] + " " + splitTime[0];
+									}
+									catch(e){
+										$scope.lastlogin = response.value.result[0].LastLogin;
+									}						
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					     
+					     
+					$scope.logout = function(){
+						var url = "/logout/id/"+userid+"/token/"+token;   				
+	    				$http({
+							method: 'GET',
+							url: url,
+							data: 
+							{ 
+								"userid": 13 
+							}						
+							}).success(function(response){
+								if(response.value.error == false){			
+									window.location.href = "/logout";						
+								}
+								else{
+									alert(response.value.message);	
+								}					
+							}).error(function(err){
+								if(err.value.message.message != undefined){
+									alert(err.value.message.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+								else{
+									alert(err.value.message);
+									if(err.value.message == "No records found." || err.value.message == "No active session found. Please login again to create a valid session."){
+										window.location.href = "/";
+									}
+								}
+					     });
+					};
+        }
+    </script>
+    <script>
+    	function getMonthName(id){
+    		switch(id){
+    			case "1": return "January";
+    					break;
+    			case "2": return "February";
+    					break;
+    			case "3": return "March";
+    					break;
+    			case "4": return "April";
+    					break;
+    			case "5": return "May";
+    					break;
+    			case "6": return "June";
+    					break;
+    			case "7": return "July";
+    					break;
+    			case "8": return "August";
+    					break;
+    			case "9": return "September";
+    					break;
+    			case "10": return "October";
+    					break;
+    			case "11": return "November";
+    					break;
+    			case "12": return "December";
+    		}
+    	}
+    </script>
+    <link rel="stylesheet" type="text/css" href="https://static.licdn.com/scds/concat/common/css?h=butwuk9519t84n1sehrnvm28e-88a1cukpbdne8xc9d9pgyy4yy-7utshxh7khh3dt6rf9hqkcva9-dh9s2pgf6ghcuifobl7cvitf9-9zqrvq8cfveudp183uj4r7mnn-24o3wkkwwvmwutak3nlw5lx4n-eu8svnpd32wrtwqeuiuomdty0-d3qzdm6v4fwdfvj915pc8j33q-7wkobeym49ay68d7m8s89ll84-b9x9bqassms851tb78g9ejb4l-bl8cw4bd4ob4pwjuq0b91hzgl-6ats6m7xduygfm2ub9thl1xvq&amp;fc=2">
+</head>
+<body ng-controller="homepageController" dir="ltr" class="member v2  chrome-v5 chrome-v5-responsive sticky-bg" id="pagekey-nprofile_my_profile">
+    <!------------------header----------------->
+    <div id="header" class="global-header responsive-header nav-v5-2-header responsive-1 remote-nav" role="banner">
+        <div id="top-header">
+            <div class="wrapper">
+                <div class="header-section first-child">
+                    <table width="100%">
+                        <tr>
+                            <td style="width: 70%">
+                                <a href="javascript:void(0)" class="logo" id="in-logo">
+                                    LinkedIn
+                                </a>
+                            </td>
+                            <td style="width: 28%">
+                                <label style="color: #ffffff; font-size: 10pt; padding-left: 5%" ng-model="lastlogin">Last Login - {{ lastlogin }}</label> :                         
+                            </td>
+                            <td>
+                                <img ng-click="logout()" title="Logout" src="./img/log_off.png" class="logout" alt="Logout" style="height: 36px; width: 44px; cursor: pointer; padding-top: 3px;">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="responsive-nav" id="responsive-nav-scrollable">
+            <div class="wrapper">
+                <ul class="nav main-nav" role="navigation">
+                    <li class="nav-item">
+                        <a href="/homepage" class="nav-link">
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item selected">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Profile
+                        </a>
+                        <ul class="sub-nav" id="profile-sub-nav">
+                            <li>
+                                <a href="/userprofile">
+                                    Edit Profile
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Connections
+                        </a>
+                        <ul class="sub-nav">
+                            <li>
+                                <a href="/addconnection">
+                                    Check Connections
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/searchconnection">
+                                    Search Connections
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/deleteconnection">
+                                    Delete Connections
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/followcompany">
+                                    Follow Company
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/endorseskills">
+                                    Endorse Skills
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Experience
+                        </a>
+                        <ul class="sub-nav">
+                            <li>
+                                <a href="/addexperience">
+                                    Add Experience
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/editexperience">
+                                    Edit Experience
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/addproject">
+                                    Add Project
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/editproject">
+                                    Edit Project
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/skill">
+                                    Skill
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Education
+                        </a>
+                        <ul class="sub-nav">
+                            <li>
+                                <a href="/addeducation">
+                                    Add Education
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/editeducation">
+                                    Edit Education
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="javascript:void(0)" class="nav-link">
+                            Recommendations
+                        </a>
+                        <ul class="sub-nav" id="interests-sub-nav">
+                            <li>
+                                <a href="/recommendations">
+                                    Give Recommendations
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!------------------BodyContent----------------->
+
+    <div>
+        <table style="width: 100%; height: inherit">
+            <tr>
+                <td style="padding-left: 10%; padding-right: 10%; padding-top: 6.5%">
+                    <div>
+                        <table width="100%">
+                            <tr>
+                                <td style="width: 50%; vertical-align: top !important;">
+                                    <div class="section1">
+                                        <div class="divContent">
+                                            <fieldset style="margin-top: 2%; margin-left: 2%; margin-right: 2%;">
+                                                <legend>
+                                                    <label style="font-size: 19pt; color: #c3bbbb">
+                                                        User Profile
+                                                    </label>
+                                                </legend>
+                                                <div style="margin-top: 3%; margin-left: 3%; margin-right: 3%">
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <td>
+                                                                <label style="font-size: 18pt; font-weight:bold;" ng-model="firstname">{{ firstname }}</label>&nbsp;
+                                                                <label style="font-size: 18pt; font-weight:bold;" ng-model="lastname">{{ lastname }}</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br />
+                                                                <label style="font-size: 12pt; color: #706e6e" ng-model="shortdetail">{{ shortdetail }}</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br />
+                                                                <label style="font-size: 11pt; color: #706e6e" ng-model="city">{{ city }}</label>,&nbsp;
+                                                                <label style="font-size: 11pt; color: #706e6e" ng-model="state">{{ state }}</label>&nbsp; | &nbsp;
+                                                                <label style="font-size: 11pt; color: #706e6e" ng-model="degree"> Computer Software</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br />
+                                                                <table width="100%">
+                                                                    <tr>
+                                                                        <td style="width: 25%">
+                                                                            <label style="font-size: 10pt; color: #c3bbbb"> Previous</label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <label style="font-size: 10pt;"> Larsen & Toubro</label>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="width: 25%; padding-top: 6px;">
+                                                                            <label style="font-size: 10pt; color: #c3bbbb"> Education</label>
+                                                                        </td>
+                                                                        <td>
+                                                                            <label style="font-size: 10pt;"> San Jose State University</label>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </fieldset>
+                                            <br />
+                                        </div>
+                                        <div class="divContent">
+                                            <fieldset style="margin-top: 2%; margin-left: 2%; margin-right: 2%">
+                                                <legend>
+                                                    <label style="font-size: 19pt; color: #c3bbbb">
+                                                        Summary
+                                                    </label>
+                                                </legend>
+                                                <div style="margin-top: 3%; margin-left: 3%; margin-right: 3%">
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <td>
+                                                                <p style="font-size: 10pt; color: #373636" ng-model="summary">
+                                                                    {{ summary }}
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </fieldset>
+                                            <br />
+                                        </div>
+                                        <div class="divContent">
+                                            <fieldset style="margin-top: 2%; margin-left: 2%; margin-right: 2%">
+                                                <legend>
+                                                    <label style="font-size: 19pt; color: #c3bbbb">
+                                                        Additional Information
+                                                    </label>
+                                                </legend>
+                                                <div style="margin-top: 3%; margin-left: 3%; margin-right: 3%">
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <td>
+                                                                <label style="font-size: 14pt; color: #706e6e">Interests</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br />
+                                                                <label style="font-size: 10pt; color: #969292" ng-model="interest">{{ interest }}</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br />
+                                                                <label style="font-size: 14pt; color: #706e6e">Personal Details</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br />
+                                                                <table width="100%">
+                                                                    <tr>
+                                                                        <td style="width:25%">
+                                                                            <label style="font-size: 10pt; color: #c3bbbb">Birthday</label>
+                                                                        </td>
+                                                                        <td style="width:75%">
+                                                                            <label style="font-size: 10pt; color: #969292" ng-model="birthday">{{ birthday }}</label>
+                                                                            <label style="font-size: 10pt; color: #969292" ng-model="birthmonth">{{ birthmonth }}</label>
+                                                                            <label style="font-size: 10pt; color: #969292" ng-model="birthyear">{{ birthyear }}</label>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="width:25%">
+                                                                            <label style="font-size: 10pt; color: #c3bbbb">Marital Status</label>
+                                                                        </td>
+                                                                        <td style="width:75%">
+                                                                            <label style="font-size: 10pt; color: #969292" ng-model="maritalstatus">{{ maritalstatus }}</label>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br />
+                                                                <label style="font-size: 14pt; color: #706e6e">Advice for Contacting</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br />
+                                                                <table width="100%">
+                                                                    <tr>
+                                                                        <td>
+                                                                            <label style="font-size:10pt; color: #808080">You can contact me on my email or phone number</label>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <label style="font-size:10pt; color: #808080" ng-model="emailid">Email - {{ emailid }}</label>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <label style="font-size:10pt; color: #808080" ng-model="phone">Phone - {{ phone }}</label>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </fieldset>
+                                            <br />
+                                        </div>
+                                        <div class="divContent">
+                                            <fieldset style="margin-top: 2%; margin-left: 2%; margin-right: 2%">
+                                                <legend>
+                                                    <label style="font-size: 19pt; color: #c3bbbb">
+                                                        Following
+                                                    </label>
+                                                </legend>
+                                                <div style="margin-top: 3%; margin-left: 0%;">
+                                                    <table width="100%" id="tblfollowingcompany">
+                                                        
+                                                    </table>
+                                                </div>
+                                            </fieldset>
+                                            <br />
+                                        </div>
+                                        <div class="divContent">
+                                            <fieldset style="margin-top: 2%; margin-left: 2%; margin-right: 2%">
+                                                <legend>
+                                                    <label style="font-size: 19pt; color: #c3bbbb">
+                                                        Recommendations
+                                                    </label>
+                                                </legend>
+                                                <div style="margin-top: 3%; margin-left: 3%;">
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <td>
+                                                                <label style="font-size: 12pt; color: #373636; font-weight: bold" ng-model="recName">{{ recName }}</label><label style="font-size: 11pt; color: #706e6e" ng-model="shortdetails">{{ shortdetails }}</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br />
+                                                                <label style="font-size: 10pt; color: #373636" ng-model="recDescription">
+                                                                    {{ recDescription }}
+                                                                </label>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </fieldset>
+                                            <br />
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="width: 50%; vertical-align: top !important; ">
+                                    <div class="section2">
+                                        <div class="divContent">
+                                            <fieldset style="margin-top: 2%; margin-left: 2%; margin-right: 2%">
+                                                <legend>
+                                                    <label style="font-size: 19pt; color: #c3bbbb">
+                                                        Skills & Endorsements
+                                                    </label>
+                                                </legend>
+                                                <div>
+                                                    <table width="100%" id="tblSkillset">
+                                                        
+                                                    </table>
+                                                </div>
+                                            </fieldset>
+                                            <br />
+                                        </div>
+                                        <div class="divContent">
+                                            <fieldset style="margin-top: 2%; margin-left: 2%; margin-right: 2%">
+                                                <legend>
+                                                    <label style="font-size: 19pt; color: #c3bbbb">
+                                                        Education
+                                                    </label>
+                                                </legend>
+                                                <div style="margin-top: 3%; margin-left: 3%;">
+                                                    <table width="100%">
+                                                    	<tr ng-repeat="item in educationitem">
+                                                    		<td>
+                                                    			<table width="100%">                                                                 	
+                                                        <tr>
+                                                            <td>
+                                                                <label style="font-size: 14pt; color: #706e6e" ng-model="school">{{ item.School }}</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br />
+                                                                <label style="font-size: 11pt; color: #b5b1b1" ng-model="degree">{{ item.NAME }}</label>,&nbsp;
+                                                                <label style="font-size: 11pt; color: #b5b1b1" ng-model="fieldofstudy">{{ item.FieldofStudy }}</label>,&nbsp; GPA - 
+                                                                <label style="font-size: 11pt; color: #b5b1b1" ng-model="grades">{{ item.Grades }}</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br />
+                                                                <label style="font-size: 9pt; color: #969292" ng-model="startyear">Duration : {{ item.StartYear }}</label> - 
+                                                                <label style="font-size: 9pt; color: #969292" ng-model="endyear">{{ item.EndYear }}</label>
+                                                            </td>
+                                                        </tr>         
+                                                        <tr>
+                                                        	<td>
+                                                        		<br />
+                                                        	</td>
+                                                        </tr>                            			
+                                                    			</table>
+                                                    		</td>
+                                                    	</tr>  
+                                                    </table>
+                                                </div>
+                                            </fieldset>
+                                            <br />
+                                        </div>
+                                        <div class="divContent">
+                                            <fieldset style="margin-top: 2%; margin-left: 2%; margin-right: 2%">
+                                                <legend>
+                                                    <label style="font-size: 19pt; color: #c3bbbb">
+                                                        Experience
+                                                    </label>
+                                                </legend>
+                                                <div style="margin-top: 3%; margin-left: 3%;">
+                                                    <table width="100%">
+                                                    	<tr ng-repeat="item in experienceitem">
+                                                    		<td>
+                                                    			<table width="100%">
+                                                        <tr>
+                                                            <td>
+                                                                <label style="font-size: 14pt; color: #706e6e" ng-model="title">{{ item.Title }}</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br />
+                                                                <label style="font-size: 11pt; color: #b5b1b1" ng-model="companyname">{{ item.CompanyName }}</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br />
+                                                                <label style="font-size: 10pt; color: #b5b1b1" ng-model="startmonth">Duration - {{ item.StartDateMonth }}</label>
+                                                                <label style="font-size: 10pt; color: #b5b1b1" ng-model="startyear">{{ item.StartDateYear }}</label>&nbsp;-&nbsp;
+                                                                <label style="font-size: 10pt; color: #b5b1b1" ng-model="endmonth">{{ item.EndDateMonth }}</label>
+                                                                <label style="font-size: 10pt; color: #b5b1b1" ng-model="endyear">{{ item.EndDateYear }}</label>&nbsp;|&nbsp; 
+                                                                <label style="font-size: 10pt; color: #b5b1b1" ng-model="location">{{ item.Location }}</label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br />
+                                                                <label style="font-size: 9pt; color: #969292" ng-model="description">{{ item.Description }}</label>
+                                                            </td>
+                                                        </tr>        
+                                                        <tr>
+                                                        	<td>
+                                                        		<br />
+                                                        	</td>
+                                                        </tr>  
+                                                    			</table>
+                                                    			<br />
+                                                    		</td>
+                                                    	</tr>
+                                                    </table>
+                                                </div>
+                                            </fieldset>
+                                            <br />
+                                        </div>
+                                        <div class="divContent">
+                                            <fieldset style="margin-top: 2%; margin-left: 2%; margin-right: 2%">
+                                                <legend>
+                                                    <label style="font-size: 19pt; color: #c3bbbb">
+                                                        Projects
+                                                    </label>
+                                                </legend>
+                                                <div style="margin-top: 3%; margin-left: 3%;">
+                                                    <table width="100%" ng-repeat="pro in projectDetails">
+                                                        <tr>
+                                                            <td><label style="font-size: 13pt; color: #808080">{{ pro.Name }}</label></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><br /><label style="font-size: 10pt; color: #b5b1b1">{{ pro.StartDateMonth }} {{ pro.StartDateYear }}</label></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <br /><label style="font-size: 10pt; color: #373636">
+                                                                    {{ pro.Description }}
+                                                                </label>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                        	<td>
+                                                        		<br />
+                                                        	</td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </fieldset>
+                                            <br />
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!------------------Footer----------------->
+
+    <footer>
+        <div>
+            <div>
+                <div class="wrapper">
+                    <p style="left: 42%; padding-bottom :2%; padding-top: 1%; font-size: 9pt; position:absolute;" id="copyright" class="guest"><span>LinkedIn Corporation</span> <em>&copy; 2015</em></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
